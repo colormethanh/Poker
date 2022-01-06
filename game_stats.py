@@ -1,4 +1,5 @@
+class GameStats ():
 
-current_players = []
+    def __init__(self):
 
-        
+        self.current_players = []

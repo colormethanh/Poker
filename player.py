@@ -3,7 +3,7 @@ class Player():
 
     def __init__(self, username, ID, funds=0):
         self.username = username
-        self.hand = None
+        self.hand = []
         self.funds = 0
         self.ID = ID
 

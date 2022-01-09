@@ -1,7 +1,9 @@
+import sys
 from player import Player
+from main_game import PokerGame
 
 
-def home_screen(GS):
+def home_screen(GS, deck):
     txt = ["Welcome to my Poker games!",
            "To continue please select...",
            "1. Start",
@@ -18,20 +20,23 @@ def home_screen(GS):
             print("oops, please responde with 1 or 2\n")
             continue
         elif sel == "1":
-            print("Starting game...")
-            game_options(GS)
+            add_player(GS, p_name="thanh", ID="111", Funds=False)
+
+            print("Starting game...\n")
+            game_options(GS, deck)
             break
         elif sel == "2":
-            break
+            print("See you next time!")
+            sys.exit()
 
 
-def game_options(GS):
+def game_options(GS, deck):
     txt = [
         "\nGame options are..",
         "1. Start New Hand",
         "2. Add Player",
         "3. See Current Players",
-        "4. Quit Game",
+        "4. back to title screen",
         ""
     ]
 
@@ -45,31 +50,28 @@ def game_options(GS):
             continue
 
         elif sel == "1":
-            print("Starting new hand...\n")
-            continue
+            new_hand(GS, deck)
 
         elif sel == "2":
             add_player(GS)
 
         elif sel == "3":
-            print("Current players...\n")
-            if len(GS.current_players) == 0:
-                print("There are currently no players in the game\n")
-            else:
-                for p in GS.current_players:
-                    print(p)
-            continue
+            view_players(GS)
+
         elif sel == "4":
-            print("See you next time!")
-            break
+            home_screen(GS, deck)
 
 
-def add_player(GS):  # need to add checks for user ID
-    p_name = input("Username: ")
-    ID = input("Please choose 3 numbers as your ID: ")
+def add_player(GS, p_name=None, ID=None, Funds=True):
+
+    if not p_name:
+        p_name = input("Username: ")
+    if not ID:
+        ID = input("Please choose 3 numbers as your ID: ")
+
     player = Player(p_name, ID)
 
-    while True:
+    while Funds:
         p_funds = input("Enter funds? y or n: ")
 
         if p_funds == "y":
@@ -83,3 +85,31 @@ def add_player(GS):  # need to add checks for user ID
             continue
 
     GS.current_players.append(player)
+
+
+def view_players(GS):
+    print("Current players...\n")
+    if len(GS.current_players) == 0:
+        print("There are currently no players in the game\n")
+    else:
+        for p in GS.current_players:
+            print(p)
+
+
+def new_hand(GS, deck):
+
+    if len(GS.current_players) >= 1:
+        PokerGame(GS.current_players, deck)
+    else:
+        print("Oops please add at least one player to start a game!")
+
+        while True:
+            ans = input("Would you like to add one now? ^_^ y/n ")
+            if ans == "y":
+                add_player(GS)
+                break
+            elif ans == "n":
+                print("Returning to game options...")
+                game_options(GS, deck)
+            else:
+                print("Opps, valid answers are 'y' and 'n', please try again")

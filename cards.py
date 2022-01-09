@@ -1,13 +1,26 @@
+import random
+
+
 class Cards():
 
     def __init__(self):
-        suits = ["hearts", "diamonds", "clover", "spades"]
-        nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        self.suits = ["hearts", "diamonds", "clover", "spades"]
+        self.nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+        self.deck = [(num, suit) for suit in self.suits for num in self.nums]
 
-        deck = [(suit, num) for suit in suits for num in nums]
+    def __str__(self):
+        msg = []
+        for c in self.deck:
+            msg.append(str(c))
 
-        print(f"the legnth of the deck is {len(deck)} cards long")
-        print(deck[:10])
+        msg = ",".join(msg)
+        return(msg)
 
+    def shuffle(self):
+        random.shuffle(self.deck)
+        return(self.deck)
 
-my_deck = Cards()
+    def hard_shuffle(self):
+        self.deck = [(num, suit) for suit in self.suits for num in self.nums]
+        random.shuffle(self.deck)
+        return(self.deck)

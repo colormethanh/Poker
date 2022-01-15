@@ -1,29 +1,45 @@
+import game_functions as GF
+
+
 class PokerGame():
 
-    def __init__(self, current_players, deck):
+    def __init__(self, GS, deck):
+
+        self.GS = GS
+        self.current_players = GS.current_players
+        self.deck = deck
 
         deck.shuffle()
         self.community_cards = []
-        self.current_players = current_players
-        self.deck = deck
+
+    def start_game(self):
 
         while True:
-            ans = input("Ready for the cards to be dealt? y/n ")
+            start = GF.cont_box(q="Ready to deal hands? y/n ")
 
-            if ans == "y":
-                deck.shuffle()
+            if start:
+                self.deck.hard_shuffle()
+                self.community_cards.clear()
+                for p in self.current_players:
+                    p.hand.clear()
 
-                for player in current_players:
-                    player.hand.clear()
+                self.deal_pocket()
+                print(f"Legnth of cards are {len(self.deck.deck)}")
 
-                print("\nDealing pocket cards...\n")
-                self.deal_cards()
-                print(f"Length of deck is...{len(deck.deck)}")
-            elif ans == "n":
-                deck.hard_shuffle()
-                break
+                self.the_flop()
+                print(f"Legnth of cards are {len(self.deck.deck)}")
 
-    def deal_cards(self):
+                self.deal_card(question="Ready for the turn? y/n ")
+                print(f"Legnth of cards are {len(self.deck.deck)}")
+
+                self.deal_card(question="Ready for the River? y/n ")
+                print(f"Legnth of cards are {len(self.deck.deck)}")
+                # end of one game ###
+            else:
+                GF.game_options(self.GS, self.deck, self)
+
+    def deal_pocket(self):
+        print("\nDealing 'pocket cards'...\n")
 
         for n in range(2):
             for player in self.current_players:
@@ -31,4 +47,26 @@ class PokerGame():
                 player.hand.append(card)
 
         for player in self.current_players:
-            print(f"{player.username}'s cards are, {player.hand}")
+            print(f"{player.username}'s cards are, {player.hand}\n")
+
+    def the_flop(self):
+        flop = GF.cont_box(q="Ready for the flop? y/n ")
+
+        if flop:
+            for i in range(3):
+                card = self.deck.deck.pop()
+                self.community_cards.append(card)
+            print(f"\nCommunity cards are... {self.community_cards}")
+        else:
+            GF.game_options(self.GS, self.deck, self)
+
+    def deal_card(self, question):
+
+        deal = GF.cont_box(q=question)
+
+        if deal:
+            card = self.deck.deck.pop()
+            self.community_cards.append(card)
+            print(f"\nCommunity cards are... {self.community_cards}")
+        else:
+            GF.game_options(self.GS, self.deck, self)

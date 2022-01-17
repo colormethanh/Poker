@@ -14,29 +14,37 @@ class PokerGame():
 
     def start_game(self):
 
-        while True:
-            start = GF.cont_box(q="Ready to deal hands? y/n ")
+        # start game prompt
+        start = GF.cont_box(q="Ready to deal hands? y/n ")
 
+        while start:
+
+            # reseting player hands, deck, and community_cards
+            self.deck.hard_shuffle()
+            self.community_cards.clear()
+            for p in self.current_players:
+                p.hand.clear()
+
+            self.deal_pocket()
+            print(f"Legnth of cards are {len(self.deck.deck)}")
+
+            self.the_flop()
+            print(f"Legnth of cards are {len(self.deck.deck)}")
+
+            self.deal_card(question="Ready for the turn? y/n ")
+            print(f"Legnth of cards are {len(self.deck.deck)}")
+
+            self.deal_card(question="Ready for the River? y/n ")
+            print(f"Legnth of cards are {len(self.deck.deck)}")
+            # end of one game ###
+
+            # prompt to reset game
+            start = GF.cont_box(q="Ready for another hand? y/n ")
             if start:
-                self.deck.hard_shuffle()
-                self.community_cards.clear()
-                for p in self.current_players:
-                    p.hand.clear()
-
-                self.deal_pocket()
-                print(f"Legnth of cards are {len(self.deck.deck)}")
-
-                self.the_flop()
-                print(f"Legnth of cards are {len(self.deck.deck)}")
-
-                self.deal_card(question="Ready for the turn? y/n ")
-                print(f"Legnth of cards are {len(self.deck.deck)}")
-
-                self.deal_card(question="Ready for the River? y/n ")
-                print(f"Legnth of cards are {len(self.deck.deck)}")
-                # end of one game ###
-            else:
-                GF.game_options(self.GS, self.deck, self)
+                continue
+            if not start:
+                break
+        GF.game_options(self.GS, self.deck, self)
 
     def deal_pocket(self):
         print("\nDealing 'pocket cards'...\n")

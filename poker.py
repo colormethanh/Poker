@@ -5,10 +5,12 @@ from main_game import PokerGame
 
 
 def run():
+    # initializing Game Stats, deck, and poker game
     GS = GameStats()
     deck = Cards()
     poker_game = PokerGame(GS, deck)
-    GF.add_player(GS, p_name="thanh", ID="111", Funds=False)
+
+    # starting the game's home home_screen
     GF.home_screen(GS, deck, poker_game)
 
 

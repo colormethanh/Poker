@@ -1,18 +1,20 @@
 import socket
+import pickle
 
 
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
         self.server = "192.168.11.2"
         self.port = 5555
         self.addr = (self.server, self.port)
-        self.d = self.connect()
-        self.data = ""
-        print(self.d)
 
-    def get_data(self):
-        return self.d
+        self.p = self.connect()  # self.d is player object for now
+        self.recv_data = ""
+
+    def get_player(self):
+        return self.p
 
     def connect(self):
         try:
@@ -23,12 +25,11 @@ class Network:
 
     def send_data(self, data):
         try:
+            # sends data to server
             self.client.send(str.encode(data))
-            self.data = self.client.recv(2048).decode()
+
+            # the recieved data is sent back to the client in "self.recv_data"
+            return pickle.loads(self.client.recv(2048))
+
         except socket.error as e:
             print(e)
-
-
-"""n = Network()
-n.send_data("hello")
-print(n.data)"""

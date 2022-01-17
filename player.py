@@ -5,7 +5,6 @@ class Player():
         self.username = username
         self.hand = []
         self.ledger = []
-        #self.funds = 0
         self.ID = ID
 
         print(

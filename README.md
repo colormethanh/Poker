@@ -1,7 +1,10 @@
-A project that is multiplayer poker game
+A project that is multiplayer poker game.
 
-to-do: 
-    Finish the dealing mechanics.
-    Then get started on the betting mechanics.
+Features include...
+- Updating move log
+- updating player activity across the server
+- function selection buttons
+
+
     
     

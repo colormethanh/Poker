@@ -29,7 +29,7 @@ class Network:
             self.client.send(str.encode(data))
 
             # the recieved data is sent back to the client in "self.recv_data"
-            return pickle.loads(self.client.recv(2048*4))
+            return pickle.loads(self.client.recv(4096*4))
 
         except socket.error as e:
             print(e)

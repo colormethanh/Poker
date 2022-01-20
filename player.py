@@ -6,6 +6,8 @@ class Player():
         self.hand = []
         self.ledger = []
         self.ID = ID
+        self.ready = False
+        self.active = False
 
         print(
             f"{self.username} has entered the game.\n"

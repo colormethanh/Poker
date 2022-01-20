@@ -19,9 +19,9 @@ class Network:
     def connect(self):
         try:
             self.client.connect(self.addr)
-            return self.client.recv(2048).decode()
-        except:
-            pass
+            return self.client.recv(2048*4).decode()
+        except socket.error as e:
+            print(e)
 
     def send_data(self, data):
         try:
@@ -29,7 +29,7 @@ class Network:
             self.client.send(str.encode(data))
 
             # the recieved data is sent back to the client in "self.recv_data"
-            return pickle.loads(self.client.recv(2048))
+            return pickle.loads(self.client.recv(2048*4))
 
         except socket.error as e:
             print(e)

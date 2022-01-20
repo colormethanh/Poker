@@ -1,60 +1,102 @@
 from network import Network
 import pygame
 import sys
+import os
 pygame.font.init()
 
-pygame.init()
 
-width = 1280
-height = 700
-window = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Client")
+def redrawWindow(window, game, player_obj, sel_btn_grp):
+    """ a Funtion that redraws the screen of the game """
 
-client_num = 0
-
-
-def redrawWindow(window, game):
     window.fill((255, 255, 255))
-    font = pygame.font.SysFont("comicsans", 80)
-    text = font.render("Hello!", 1, (255, 0, 0), True)
-    window.blit(text, (0, 0))
-    btn.draw(window)
-    if len(game.action_log) > 3:
+
+    # initializing game sections
+    poker_tbl_area.draw(window)
+    player_info_area.draw(window)
+    move_log_area.draw(window)
+    selection_area.draw(window)
+    otherP_info_area.draw(window)
+    for btn in sel_btn_grp:
+        btn.draw(window)
+
+    # Log system
+    log_box = Box("",
+                  40,
+                  move_log_area.y,
+                  (64, 189, 93),
+                  move_log_area.width - 80,
+                  move_log_area.height
+                  )
+    log_box.draw(window)
+
+    if game.action_log:
         ct = 0
-        for item in game.action_log[:3]:
+
+        for item in game.action_log[:5]:
             font = pygame.font.SysFont("comicsans", 20)
             text = font.render(item, True, (0, 0, 0))
             text_rect = text.get_rect()
 
             pos = (text.get_height() * ct)
-            text_rect.center = (window.get_width()//2, window.get_height()//2 - pos)
+
+            text_rect.center = (log_box.x * 1.5,
+                                log_box.y * 1.5 - pos
+                                )
             window.blit(text, text_rect)
 
-            if ct == 3:
+            if ct == 5:
                 ct = 0
             else:
                 ct += 1
 
+    # Prints player hand if hand has cards
+    if player_obj.hand:
+        ct = 0
+        for c in player_obj.hand:
+            card_code = f"{c[0]}_{c[1]}"
+            image_path = os.path.join(dirname, f'pixel_cards\\{card_code}.png')
+            # window.blit(card, (card.get_width() * ct, 0))
+            card = pygame.image.load(image_path)
+            window.blit(card, (card.get_width() * ct, 0))
+            ct += 1
+
     pygame.display.update()
 
 
-class Button:
-    def __init__(self, text, x, y, color):
+class Box:
+    """ A class that creates a button that can be clicked """
+
+    def __init__(self, text, x, y, color, width=150, height=40):
         self.text = text
         self.x = x
         self.y = y
         self.color = color
-        self.width = 150
-        self.height = 100
+        self.width = width
+        self.height = height
 
+    # Draws a the button box and text
     def draw(self, window):
-        pygame.draw.rect(window, self.color, (self.x, self.y, self.width, self.height))
-        font = pygame.font.SysFont("comicsans", 40)
-        text = font.render(self.text, 1, (255, 255, 255))
-        window.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2),
-                           self.y + round(self.height/2) - round(text.get_height()/2)))
+        """ Draws the button retangle and text """
+        # Creating and draws a retangle at certain x, y cords
+        pygame.draw.rect(window,
+                         self.color,
+                         (self.x, self.y, self.width, self.height)
+                         )
 
+        # creates a text object
+        font = pygame.font.SysFont("comicsans", 25)
+        text = font.render(self.text, 1, (255, 255, 255))
+
+        # draws the text object onto cords that are the center of the retangle
+        window.blit(text,
+                    (self.x + round(self.width/2) - round(text.get_width()/2),
+                     self.y + round(self.height/2) - round(text.get_height()/2)
+                     )
+                    )
+
+    # returns true or false if button was clicked
     def click(self, pos):
+        """ This funtion returns true or false if the button was clicked """
         x1 = pos[0]
         y1 = pos[1]
 
@@ -64,7 +106,81 @@ class Button:
             return False
 
 
-btn = Button("click me!", 500, 500, (0, 0, 255))
+class Screen_div:
+    """ A class that creates section seperators for the game UI """
+
+    def __init__(self, text, x, y, width, height, color):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.color = color
+
+    def draw(self, window):
+        """ Draws the rectangle that will be the section """
+        pygame.draw.rect(window,
+                         self.color,
+                         (self.x, self.y, self.width, self.height)
+                         )
+
+        font = pygame.font.SysFont("comicsans", 40)
+        text = font.render(self.text, 1, (255, 255, 255))
+        window.blit(text, (self.x + round(self.width/2) - round(text.get_width()/2),
+                           self.y + round(self.height/2) - round(text.get_height()/2)))
+
+
+poker_tbl_area = Screen_div("Poker Table Area", 768, 0, 512, 720, (0, 255, 0))
+player_info_area = Screen_div("Player info area", 0, 0, 768, 240, (70, 130, 180))
+move_log_area = Screen_div("Move log area", 0, 240, 384, 240, (135, 206, 235))
+otherP_info_area = Screen_div("Other Player info", 384, 240, 384, 240, (123, 104, 238))
+selection_area = Screen_div("Selection Area", 0, 480, 768, 240, (176, 224, 230))
+
+# Creating the btns selection area buttons
+deal_btn = Box("Deal Cards", 500, 500, (0, 0, 255))  # throw away button
+sel_btn_grp = []
+fold_btn = Box("Fold",
+               (selection_area.width / 5) - (deal_btn.width / 2),
+               500,
+               (0, 0, 255)
+               )
+sel_btn_grp.append(fold_btn)
+check_btn = Box("Check",
+                (selection_area.width/5) - (deal_btn.width / 2),
+                (fold_btn.y + (fold_btn.height * 1.25)),
+                (0, 0, 255)
+                )
+sel_btn_grp.append(check_btn)
+raise_btn = Box("Raise",
+                (selection_area.width/5) - (deal_btn.width / 2),
+                (check_btn.y + (check_btn.height * 1.25)),
+                (0, 0, 255)
+                )
+sel_btn_grp.append(raise_btn)
+call_btn = Box("Call",
+               (selection_area.width/5) - (deal_btn.width / 2),
+               (raise_btn.y + (raise_btn.height * 1.25)),
+               (0, 0, 255)
+               )
+sel_btn_grp.append(call_btn)
+deal_btn = Box("Deal Cards",
+               (selection_area.width / 2) + (deal_btn.width / 2),
+               500,
+               (0, 0, 255)
+               )
+sel_btn_grp.append(deal_btn)
+
+
+# Defining the dirpath to the card assets
+dirname = os.path.dirname(__file__)
+card_code = "card_back_red"
+image_path = os.path.join(dirname, f'pixel_cards\\{card_code}.png')
+
+# Defining and creating the display
+width = 1280
+height = 720
+window = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Client")
 
 
 def main():
@@ -83,15 +199,16 @@ def main():
                 pygame.quit()
                 sys.exit()
                 run = False
-
+            # checking for mouse button clicks
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                if btn.click(pos):
+                if deal_btn.click(pos):
                     print("clicked")
                     n.send_data("clicked")
 
         game = n.send_data("get")
-        redrawWindow(window, game)
+        player_obj = game.players[int(p_num) - 1]
+        redrawWindow(window, game, player_obj, sel_btn_grp)
 
 
 main()

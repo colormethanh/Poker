@@ -32,6 +32,7 @@ game = Game()
 
 
 def threaded_client(conn, user_num, game):
+    global user_count
 
     conn.send(str.encode(f"{user_num}"))
 
@@ -44,14 +45,14 @@ def threaded_client(conn, user_num, game):
                 break
 
             else:
-
-                if data == "deal":
-                    game.deal(user_num)
-
-                elif data == "clicked":
-                    game.record_action("Clicked the button", user_num)
-                    print(f"Player {user_num}, clicked the button")
-
+                if data == "clicked":
+                    if game.check_deck(2):
+                        game.deal(user_num)
+                        print(f"Player {user_num}",
+                              "clicked the button and was dealt a card"
+                              )
+                    else:
+                        print("Not enough cards to deal")
                 elif data == "get":
                     pass
 
@@ -60,6 +61,11 @@ def threaded_client(conn, user_num, game):
             print("something happened")
             break
     print("lost connection")
+
+    user_count -= 1
+    if user_count == 0:
+        game.reset()
+
     conn.close()
 
 

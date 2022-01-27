@@ -1,11 +1,10 @@
 import socket
 from _thread import start_new_thread
-from player import Player
 import pickle
 from game import Game
 
 # defining server ip and port
-server = "192.168.11.2"
+server = "192.168.11.6"
 port = 5555
 
 # creating a socket
@@ -56,9 +55,15 @@ def threaded_client(conn, user_num, game):
 
                     if game.chk_ready():
                         if len(game.active_plyrs) >= 2:
-                            game.action_log.insert(0, f"All players are ready, Dealing cards...")
+                            game.action_log.insert(0, "All players are ready, Dealing cards...")
                             print("All players ready! Dealing Cards...")
                             game.deal_cards()
+
+                        # assign blinds
+
+                        # player's ante's are collected
+
+                        # Pre-blind bet loop
 
                 elif data == "get":
                     pass

@@ -9,6 +9,12 @@ class Game:
         self.action_log = []
         self.community_cards = []
         self.active_plyrs = []
+        self.prev_bet = 0
+        self.big_blind = 4
+        self.small_blind = 2
+        self.ante = 1
+        self.plyer_turn = 0
+
         self.players_mstr = [
             Player("Carl", 1),
             Player("Dan", 2),
@@ -51,33 +57,12 @@ class Game:
         return(self.deck)
 
     def deal_cards(self):
-        """
-            Deals all active users their
-        """
+        """ Deals all active users their cards """
         for c in range(2):
             for p in self.active_plyrs:
                 card = self.deck.pop()
                 p.hand.append(card)
                 self.action_log.insert(0, f"Player {p.ID}, was dealt a card.")
-        """
-        if len(p.hand) == 0:
-            for n in range(2):
-                card = self.deck.pop()
-                p.hand.append(card)
-                self.action_log.insert(0, f"player {user_num}, was dealt {card}")
-
-        elif len(p.hand) != 0:
-            for n in range(2):
-                p_card = p.hand.pop()
-                self.deck.insert(0, p_card)
-
-            self.action_log.insert(0, f"player {user_num}'s, hand was cleared")
-
-            for n in range(2):
-                card = self.deck.pop()
-                p.hand.append(card)
-                self.action_log.insert(0, f"player {user_num}, was dealt {card}")
-        """
 
     def record_action(self, action, player_num):
         self.action_log.insert(0, f"Player {player_num} has {action}")
@@ -98,3 +83,64 @@ class Game:
         self.community_cards.clear()
         self.deck = self.hard_shuffle()
         self.action_log.clear()
+
+    def assign_blinds(self, game_start=False):
+
+        if game_start:
+            p = self.get_active_plyrs()
+            p[0].blind = "Small Blind"
+            p[1].blind = "Big Blind"
+        else:
+            for p in self.get_active_plyrs():
+                if p.blind == "Small Blind":
+                    p.blind = False
+                if p.blind == "Big Blind":
+                    p.blind = "Small Blind"
+                    break
+
+            try:
+                for p in self.get_active_plyrs():
+                    if p.blind == "Small Blind":
+                        self.active_plyrs[p.ID].blind = "Big Blind"
+                        break
+            except:
+                p = self.get_active_plyrs()
+                p[0].blind = "Big Blind"
+
+    def pre_blind_bet(self, p_num):
+        player = self.players_mstr[p_num - 1]
+
+        if player.blind:
+
+            if player.blind == "Big Blind":
+                pass
+            else:
+                pass
+        else:
+
+            # Get the selection from player
+            pass
+
+
+game = Game()
+
+for p in game.players_mstr:
+    print(f"Player {p.ID} Is... {p.blind}")
+
+for p in range(2):
+    game.players_mstr[p].active = True
+    game.players_mstr[p].ready = True
+
+game.assign_blinds(game_start=True)
+
+print("_____" * 20)
+
+for p in game.players_mstr:
+    print(f"Player {p.ID} Is... {p.blind}")
+
+game.assign_blinds(game_start=False)
+
+print("_____" * 20)
+
+for p in game.players_mstr:
+    print(f"Player {p.ID} Is... {p.blind}")

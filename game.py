@@ -15,6 +15,8 @@ class Game:
         self.ante = 1
         self.plyer_turn = 0
 
+        self.plyr_bet = False
+
         self.players_mstr = [
             Player("Carl", 1),
             Player("Dan", 2),
@@ -64,10 +66,6 @@ class Game:
                 p.hand.append(card)
                 self.action_log.insert(0, f"Player {p.ID}, was dealt a card.")
 
-    def record_action(self, action, player_num):
-        self.action_log.insert(0, f"Player {player_num} has {action}")
-        return self.action_log
-
     def hard_shuffle(self):
         self.deck = self.get_deck()
         random.shuffle(self.deck)
@@ -89,37 +87,47 @@ class Game:
         if game_start:
             p = self.get_active_plyrs()
             p[0].blind = "Small Blind"
+            self.action_log.insert(0, f"Player {p[0].ID} has been assigned Small Blind")
+
             p[1].blind = "Big Blind"
+            self.action_log.insert(0, f"Player {p[1].ID} has been assigned Big Blind")
         else:
             for p in self.get_active_plyrs():
                 if p.blind == "Small Blind":
                     p.blind = False
+
                 if p.blind == "Big Blind":
                     p.blind = "Small Blind"
+                    self.action_log.insert(0, f"Player {p.ID} been assigned Small Blind")
                     break
 
             try:
                 for p in self.get_active_plyrs():
                     if p.blind == "Small Blind":
                         self.active_plyrs[p.ID].blind = "Big Blind"
+                        self.action_log.insert(0, "been assigned Big Blind")
                         break
             except:
                 p = self.get_active_plyrs()
                 p[0].blind = "Big Blind"
+                self.action_log.insert(0, f"Player {p[0].ID} has been assigned Big Blind")
 
-    def pre_blind_bet(self, p_num):
+    def pre_pocket_bet(self, p_num):
         player = self.players_mstr[p_num - 1]
 
-        if player.blind:
+        for p in self.get_active_plyrs():
 
-            if player.blind == "Big Blind":
-                pass
-            else:
-                pass
-        else:
-
-            # Get the selection from player
-            pass
+            if not p.turn:
+                player.choices["fold"] = False
+                player.choices["check"] = False
+                player.choices["call"] = False
+                player.choices["raise"] = False
+                player.choices["bet"] = False
+            if p.turn:
+                if self.plyr_bet:
+                    player.choices["fold"] = True
+                    player.choices["call"] = True
+                    player.choices["raise"] = True
 
 
 game = Game()
@@ -144,3 +152,6 @@ print("_____" * 20)
 
 for p in game.players_mstr:
     print(f"Player {p.ID} Is... {p.blind}")
+
+for action in game.action_log:
+    print(action)

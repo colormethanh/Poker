@@ -7,9 +7,18 @@ class Player():
         self.ledger = []
         self.ID = ID
 
+        self.choices = {
+            "fold": False,
+            "check": False,
+            "call": False,
+            "raise": False,
+            "bet": False,
+        }
+
         self.ready = False
         self.active = False
         self.blind = False
+        self.turn = False
         self.went = False
         self.fold = False
 

@@ -55,11 +55,11 @@ def threaded_client(conn, user_num, game):
 
                     if game.chk_ready():
                         if len(game.active_plyrs) >= 2:
-                            game.action_log.insert(0, "All players are ready, Dealing cards...")
-                            print("All players ready! Dealing Cards...")
-                            game.deal_cards()
+                            game.action_log.insert(0, "All players are ready, starting game...")
+                            print("assigning blinds")
+                            game.assign_blinds(game_start=True)
 
-                        # assign blinds
+                            game.deal_cards()
 
                         # player's ante's are collected
 

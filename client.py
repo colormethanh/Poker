@@ -32,7 +32,7 @@ def redrawWindow(window, game, player_obj, sel_btn_grp):
     if game.action_log:
         ct = 0
 
-        for item in game.action_log[:5]:
+        for item in game.action_log[:10]:
 
             font = pygame.font.SysFont("comicsans", 20)
             text = font.render(item, True, (0, 0, 0))
@@ -41,13 +41,9 @@ def redrawWindow(window, game, player_obj, sel_btn_grp):
                                                log_box.y + 15 + (log_pos * 1.5)
                                                )
                                       )
-
-            """text_rect.center = (log_box.x + (text_rect.width / 2),
-                                log_box.y + (log_pos * 1.5)
-                                )"""
             window.blit(text, text_rect)
 
-            if ct == 5:
+            if ct == 10:
                 ct = 0
             else:
                 ct += 1
@@ -198,6 +194,8 @@ def main():
     n = Network()
     p_num = n.get_player()
     game = n.send_data("get")
+    game.players_mstr[int(p_num) - 1].active = True
+    player_obj = game.players_mstr[int(p_num) - 1]
 
     while run:
         clock.tick(60)
@@ -222,8 +220,6 @@ def main():
                         pass
 
         game = n.send_data("get")
-        game.players_mstr[int(p_num) - 1].active = True
-        player_obj = game.players_mstr[int(p_num) - 1]
         redrawWindow(window, game, player_obj, sel_btn_grp)
 
 

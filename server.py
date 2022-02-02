@@ -4,7 +4,7 @@ import pickle
 from game import Game
 
 # defining server ip and port
-server = "192.168.11.6"
+server = "192.168.11.14"
 port = 5555
 
 # creating a socket
@@ -23,20 +23,18 @@ print("Server started, waiting for a connection...")
 
 """ ### End of server creation ### """
 
-connected = set()
-
 user_count = 0
 
 game = Game()
 
 
-def threaded_client(conn, user_num, game):
+def threaded_client(conn, player_obj, game):
     global user_count
 
-    conn.send(str.encode(f"{user_num}"))
+    conn.send(str.encode(f"{player_obj.ID}"))
 
-    game.players_mstr[user_num - 1].active = True
-    game.active_plyrs.append(game.players_mstr[user_num - 1])
+    player_obj.active = True
+    game.active_plyrs.append(player_obj)
 
     while True:
         try:
@@ -49,24 +47,34 @@ def threaded_client(conn, user_num, game):
             else:
 
                 if data == "Ready":
-                    game.players_mstr[user_num - 1].ready = True
-                    print(f"User {user_num} is ready")
-                    game.action_log.insert(0, f"User {user_num} is ready")
+                    player_obj.ready = True
+                    print(f"User {player_obj.ID} is ready")
+                    game.action_log.insert(0, f"User {player_obj.ID} is ready")
 
-                    if game.chk_ready():
-                        if len(game.active_plyrs) >= 2:
-                            game.action_log.insert(0, "All players are ready, starting game...")
-                            print("assigning blinds")
-                            game.assign_blinds(game_start=True)
+                if data == "get":
+                    conn.sendall(pickle.dumps(game))
 
-                            game.deal_cards()
+                game_phase = game.chk_phase()
 
-                        # player's ante's are collected
+                if game_phase == "pre-pocket":  # if in pre-pocket phase
+                    if not game.active:
+                        print("game is now active")
+                        game.action_log.insert(0, "All players are ready, starting game...")
+                        game.active = True
 
-                        # Pre-blind bet loop
+                    if not game.blind_assnd:
+                        print("assigning blinds")
+                        game.assign_blinds(game_start=True)
 
-                elif data == "get":
-                    pass
+                    game.players_mstr[0].turn = True
+
+                    game.pre_pocket_bet(player_obj)
+
+                elif game_phase == "pre-flop":
+                    print("game phase is ", game_phase)
+                    if not game.pocket_dealt:
+                        print("dealing cards")
+                        game.deal_cards()
 
             conn.sendall(pickle.dumps(game))
         except:
@@ -86,5 +94,5 @@ while True:
     print("Connected to: ", addr)
 
     user_count += 1
-
-    start_new_thread(threaded_client, (conn, user_count, game))
+    player_obj = game.players_mstr[user_count - 1]
+    start_new_thread(threaded_client, (conn, player_obj, game))

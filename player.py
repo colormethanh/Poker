@@ -8,11 +8,11 @@ class Player():
         self.ID = ID
 
         self.choices = {
-            "fold": False,
-            "check": False,
-            "call": False,
-            "raise": False,
-            "bet": False,
+            "Fold": 'off',
+            "Check": 'off',
+            "Call": 'off',
+            "Raise": 'off',
+            "Bet": 'off',
         }
 
         self.ready = False
@@ -21,10 +21,6 @@ class Player():
         self.turn = False
         self.went = False
         self.fold = False
-
-        print(
-            f"{self.username} has entered the game.\n"
-        )
 
     def __str__(self):
         return(

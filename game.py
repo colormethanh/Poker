@@ -6,16 +6,24 @@ class Game:
     def __init__(self):
         self.deck = self.get_deck()
         self.deck = self.shuffle_deck()
+
         self.action_log = []
         self.community_cards = []
         self.active_plyrs = []
         self.prev_bet = 0
+
+        # game settings
         self.big_blind = 4
         self.small_blind = 2
         self.ante = 1
-        self.plyer_turn = 0
 
+        # game state info
+        self.active = False
+        self.blind_assnd = False
+        self.pocket_dealt = False
+        self.plyer_turn = 0
         self.plyr_bet = False
+        self.pocket_dealt = False
 
         self.players_mstr = [
             Player("Carl", 1),
@@ -35,12 +43,31 @@ class Game:
         return self.active_plyrs
 
     def chk_ready(self):
-        for player in self.active_plyrs:
+        ct = 0
+        for player in self.get_active_plyrs():
             if not player.ready:
                 return False
             else:
+                ct += 1
                 continue
-        return True
+
+        if ct >= 2:
+            return True
+        else:
+            return False
+
+    def chk_phase(self):
+
+        if self.chk_ready():
+            if self.pocket_dealt:
+                game_phase = "pre-flop"
+                return game_phase
+            else:
+                game_phase = "pre-pocket"
+                return game_phase
+        else:
+            game_phase = "waiting"
+            return game_phase
 
     def get_deck(self):
         suits = ["hearts", "diamonds", "clovers", "spades"]
@@ -61,10 +88,10 @@ class Game:
     def deal_cards(self):
         """ Deals all active users their cards """
         for c in range(2):
-            for p in self.active_plyrs:
+            for p in self.get_active_plyrs():
                 card = self.deck.pop()
                 p.hand.append(card)
-                self.action_log.insert(0, f"Player {p.ID}, was dealt a card.")
+                self.action_log.insert(0, f"Player {p.ID} was dealt their hand")
 
     def hard_shuffle(self):
         self.deck = self.get_deck()
@@ -87,10 +114,10 @@ class Game:
         if game_start:
             p = self.get_active_plyrs()
             p[0].blind = "Small Blind"
-            self.action_log.insert(0, f"Player {p[0].ID} has been assigned Small Blind")
+            self.action_log.insert(0, f"Player {p[0].ID} is the Small Blind")
 
             p[1].blind = "Big Blind"
-            self.action_log.insert(0, f"Player {p[1].ID} has been assigned Big Blind")
+            self.action_log.insert(0, f"Player {p[1].ID} is the Big Blind")
         else:
             for p in self.get_active_plyrs():
                 if p.blind == "Small Blind":
@@ -98,60 +125,27 @@ class Game:
 
                 if p.blind == "Big Blind":
                     p.blind = "Small Blind"
-                    self.action_log.insert(0, f"Player {p.ID} been assigned Small Blind")
+                    self.action_log.insert(0, f"Player {p.ID} is the Small Blind")
                     break
 
             try:
                 for p in self.get_active_plyrs():
                     if p.blind == "Small Blind":
                         self.active_plyrs[p.ID].blind = "Big Blind"
-                        self.action_log.insert(0, "been assigned Big Blind")
+                        self.action_log.insert(0, f" player {p.ID} is the Big Blind")
                         break
             except:
                 p = self.get_active_plyrs()
                 p[0].blind = "Big Blind"
-                self.action_log.insert(0, f"Player {p[0].ID} has been assigned Big Blind")
+                self.action_log.insert(0, f"Player {p[0].ID} is the Big Blind")
 
-    def pre_pocket_bet(self, p_num):
-        player = self.players_mstr[p_num - 1]
+        self.blind_assnd = True
 
-        for p in self.get_active_plyrs():
+    def pre_pocket_bet(self, player_obj):
 
-            if not p.turn:
-                player.choices["fold"] = False
-                player.choices["check"] = False
-                player.choices["call"] = False
-                player.choices["raise"] = False
-                player.choices["bet"] = False
-            if p.turn:
-                if self.plyr_bet:
-                    player.choices["fold"] = True
-                    player.choices["call"] = True
-                    player.choices["raise"] = True
-
-
-game = Game()
-
-for p in game.players_mstr:
-    print(f"Player {p.ID} Is... {p.blind}")
-
-for p in range(2):
-    game.players_mstr[p].active = True
-    game.players_mstr[p].ready = True
-
-game.assign_blinds(game_start=True)
-
-print("_____" * 20)
-
-for p in game.players_mstr:
-    print(f"Player {p.ID} Is... {p.blind}")
-
-game.assign_blinds(game_start=False)
-
-print("_____" * 20)
-
-for p in game.players_mstr:
-    print(f"Player {p.ID} Is... {p.blind}")
-
-for action in game.action_log:
-    print(action)
+        if not player_obj.turn:
+            for k, v in player_obj.choices.items():
+                player_obj.choices[k] = "off"
+        else:
+            for k, v in player_obj.choices.items():
+                player_obj.choices[k] = "on"

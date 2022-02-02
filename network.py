@@ -6,11 +6,11 @@ class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        self.server = "192.168.11.6"
+        self.server = "192.168.11.14"
         self.port = 5555
         self.addr = (self.server, self.port)
 
-        self.p = self.connect()  # self.p is player object for now
+        self.p = self.connect()  # self.p is player number for now
         self.recv_data = ""
 
     def get_player(self):
@@ -29,7 +29,7 @@ class Network:
             self.client.send(str.encode(data))
 
             # the recieved data is sent back to the client in "self.recv_data"
-            return pickle.loads(self.client.recv(4096*4))
+            return pickle.loads(self.client.recv(4096*8))
 
         except socket.error as e:
             print(e)

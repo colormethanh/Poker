@@ -6,7 +6,7 @@ pygame.font.init()
 
 
 def redrawWindow(window, game, player_obj, sel_btn_grp):
-    """ a Funtion that redraws the screen of the game """
+    """ a Function that redraws the screen of the game """
 
     window.fill((255, 255, 255))
 
@@ -16,8 +16,20 @@ def redrawWindow(window, game, player_obj, sel_btn_grp):
     move_log_area.draw(window)
     selection_area.draw(window)
     otherP_info_area.draw(window)
-    for btn in sel_btn_grp:
-        btn.draw(window)
+    ready_btn.draw(window)
+
+    # assigning button colors depending on if it's their turn or not
+    if not player_obj.turn:
+        for btn in sel_btn_grp:
+            btn.color = (142, 142, 142)
+            btn.draw(window)
+    else:
+        for btn in sel_btn_grp:
+            if player_obj.choices[btn.text] == 'on':
+                btn.color = (0, 255, 0)
+            else:
+                btn.color = (142, 142, 142)
+            btn.draw(window)
 
     # Log system
     log_box = Box("",
@@ -142,6 +154,12 @@ selection_area = Screen_div("Selection Area", 0, 480, 768, 240, (176, 224, 230))
 # Creating the btns selection area buttons
 ready_btn = Box("Deal Cards", 500, 500, (0, 0, 255))  # throw away button
 sel_btn_grp = []
+ready_btn = Box("Ready",
+                (selection_area.width / 2) + (ready_btn.width / 2),
+                500,
+                (255, 0, 0)
+                )
+
 fold_btn = Box("Fold",
                (selection_area.width / 5) - (ready_btn.width / 2),
                500,
@@ -166,12 +184,6 @@ call_btn = Box("Call",
                (0, 0, 255)
                )
 sel_btn_grp.append(call_btn)
-ready_btn = Box("Ready",
-                (selection_area.width / 2) + (ready_btn.width / 2),
-                500,
-                (255, 0, 0)
-                )
-sel_btn_grp.append(ready_btn)
 
 
 # Defining the dirpath to the card assets
@@ -193,12 +205,13 @@ def main():
 
     n = Network()
     p_num = n.get_player()
+    print(f"You are player {p_num}")
     game = n.send_data("get")
     game.players_mstr[int(p_num) - 1].active = True
-    player_obj = game.players_mstr[int(p_num) - 1]
 
     while run:
         clock.tick(60)
+        player_obj = game.players_mstr[int(p_num) - 1]
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -214,10 +227,18 @@ def main():
                 if ready_btn.click(pos):
                     if not game.players_mstr[int(p_num) - 1].ready:
                         print("Ready")
-                        n.send_data(ready_btn.text)
+                        game = n.send_data(ready_btn.text)
                         ready_btn.color = (0, 255, 0)
+                        # redrawWindow(window, game, player_obj, sel_btn_grp)
                     elif game.players_mstr[int(p_num) - 1].ready:
                         pass
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+
+                for btn in sel_btn_grp:
+                    if btn.click(pos):
+                        print(btn.text, " was clicked")
 
         game = n.send_data("get")
         redrawWindow(window, game, player_obj, sel_btn_grp)

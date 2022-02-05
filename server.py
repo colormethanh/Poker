@@ -57,18 +57,38 @@ def threaded_client(conn, player_obj, game):
                 game_phase = game.chk_phase()
 
                 if game_phase == "pre-pocket":  # if in pre-pocket phase
+
+                    # Starting the game
                     if not game.active:
-                        print("game is now active")
+                        print("The Game has now started")
                         game.action_log.insert(0, "All players are ready, starting game...")
                         game.active = True
 
+                    # Collecting antes from the player
+                    if not game.ante_collected:
+                        print("Collecting ante")
+                        game.action_log.insert(0, "Collecting ante from players")
+                        for p in game.get_active_plyrs():
+                            p.ledger.transfer(game.ante, game.ledger)
+                            print(p.ledger)
+                        game.ante_collected = True
+
+                    # Assigning blinds
                     if not game.blind_assnd:
                         print("assigning blinds")
                         game.assign_blinds(game_start=True)
 
+                    # Starting player 1's turn
                     game.players_mstr[0].turn = True
 
+                    # Starting pre-pocket bet loop
                     game.pre_pocket_bet(player_obj)
+
+                    if player_obj.turn:
+                        if data in [choice for choice in player_obj.choices]:
+                            game.action_log.insert(0, f"Player {player_obj.ID} selected {data}")
+                        if data.isdigit():
+                            game.action_log.insert(0, f"Player {player_obj.ID} Raised {data}")
 
                 elif game_phase == "pre-flop":
                     print("game phase is ", game_phase)

@@ -238,7 +238,10 @@ def main():
 
                 for btn in sel_btn_grp:
                     if btn.click(pos):
-                        print(btn.text, " was clicked")
+                        if btn.text == "Raise":
+                            game = n.send_data("5")
+                        else:
+                            game = n.send_data(btn.text)
 
         game = n.send_data("get")
         redrawWindow(window, game, player_obj, sel_btn_grp)

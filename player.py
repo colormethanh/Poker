@@ -1,11 +1,16 @@
+from ledger import Ledger
+
+
 class Player():
     """ A class to represent a plyer in a poker game"""
 
     def __init__(self, username, ID):
         self.username = username
         self.hand = []
-        self.ledger = []
         self.ID = ID
+        self.ledger = Ledger(self.ID)
+        self.ledger.deposit(1000, description="Initial Deposit")
+        print(self.ledger)
 
         self.choices = {
             "Fold": 'off',

@@ -1,4 +1,5 @@
 from player import Player
+from ledger import Ledger
 import random
 
 
@@ -6,6 +7,8 @@ class Game:
     def __init__(self):
         self.deck = self.get_deck()
         self.deck = self.shuffle_deck()
+        self.ledger = Ledger("Pot")
+        print(self.ledger)
 
         self.action_log = []
         self.community_cards = []
@@ -13,13 +16,14 @@ class Game:
         self.prev_bet = 0
 
         # game settings
-        self.big_blind = 4
-        self.small_blind = 2
-        self.ante = 1
+        self.big_blind = 10
+        self.small_blind = 5
+        self.ante = 5
 
         # game state info
         self.active = False
         self.blind_assnd = False
+        self.ante_collected = False
         self.pocket_dealt = False
         self.plyer_turn = 0
         self.plyr_bet = False
